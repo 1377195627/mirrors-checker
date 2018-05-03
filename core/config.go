@@ -10,6 +10,7 @@ var Conf *Config
 type Config struct {
 	PackageRemote string `json:"packageRemote"`
 	PackageDir string `json:"packageDir"`
+	PackageTmp string `json:"packageTmp"`
 	Packages []Package `json:"package"`
 }
 
@@ -27,8 +28,17 @@ func InitConfig() error {
 	if err != nil {
 		return err
 	}
-	err = json.NewDecoder(conf).Decode(&c)
+	if err = json.NewDecoder(conf).Decode(&c);err!=nil{
+		return err
+	}
 
 	Conf = &c
-	return err
+
+	if _,err := os.Stat(c.PackageTmp);err!=nil{
+		if os.IsNotExist(err) {
+			os.MkdirAll(c.PackageTmp,0755)
+		}
+	}
+
+	return nil
 }
